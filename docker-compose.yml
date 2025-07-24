@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  cdn-origin:
+    build: ./cdn-origin
+    container_name: cdn-origin
+    ports:
+      - "5000:5000"
+    networks:
+      - ecocdn-net
+
+  cdn-edge-1:
+    build: ./cdn-edge-1
+    container_name: cdn-edge-1
+    ports:
+      - "5001:5001"
+    networks:
+      - ecocdn-net
+    depends_on:
+      - cdn-origin
+      - sdn-controller
+
+  sdn-controller:
+    build: ./sdn-controller
+    container_name: sdn-controller
+    ports:
+      - "5005:5005"
+    networks:
+      - ecocdn-net
+
+  client-simulator:
+    build: ./client-simulator
+    container_name: client-simulator
+    depends_on:
+      - sdn-controller
+      - cdn-edge-1
+    networks:
+      - ecocdn-net
+
+networks:
+  ecocdn-net:
+    driver: bridge
